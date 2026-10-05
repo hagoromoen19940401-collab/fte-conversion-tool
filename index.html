@@ -82,7 +82,7 @@
 <div class="steps">
   <button type="button" class="step active" data-page="page1">1. 勤務表読込</button>
   <button type="button" class="step" data-page="page2">2. 確認・修正</button>
-  <button type="button" class="step" data-page="page3">3. 公式Excel出力</button>
+  <button type="button" class="step" data-page="page3">3. Excel出力</button>
 </div>
 
 <div id="page1">
@@ -167,35 +167,6 @@
   <p class="muted" style="margin:0">先に「1. 勤務表読込」で勤務表Excelを読み込んでください。</p>
 </section>
 
-<section class="panel" id="exportCheckSection" hidden>
-  <h2>出力前チェック</h2>
-  <div id="exportCheck"></div>
-</section>
-
-<section class="panel" id="exportSymbolSection" hidden>
-  <h2>シフト記号対応表（公式Excelへ書き込む予定）</h2>
-  <div id="exportSymbolInfo"></div>
-  <div class="table-wrap"><table id="exportSymbolTable"></table></div>
-</section>
-
-<section class="panel" id="exportFileSection" hidden>
-  <h2>公式Excelの作成</h2>
-  <p class="muted" style="margin:0 0 10px">厚生労働省の標準様式1（介護老人福祉施設・短期入所生活介護）のExcelを選んでください。選んだファイルは変更せず、必要なセルだけ書き込んだコピーを作成します。</p>
-  <label class="file-label">公式Excelを選択
-    <input type="file" id="templateInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-  </label>
-  <span id="templateName" class="file-name"></span>
-  <div style="margin-top:12px">
-    <label for="facilityNameInput" style="font-weight:600">事業所名：</label>
-    <input type="text" id="facilityNameInput" style="font-size:16px;padding:6px;min-height:40px;width:260px;max-width:100%" placeholder="（空欄のままでも出力できます）">
-  </div>
-  <div style="margin-top:12px">
-    <button type="button" id="exportButton" class="export-button" disabled>公式Excelを作成</button>
-    <span id="exportButtonNote" class="muted" style="margin-left:8px"></span>
-  </div>
-  <div id="exportMessages"></div>
-</section>
-
 <section class="panel" id="kaigoSection" hidden>
   <h2>介護福祉士割合・算定要件へ出力</h2>
   <p class="muted" style="margin:0 0 10px">専用テンプレートを内蔵しているので、ファイルを選ばずに出力できます。R0804特養全体（算定対象の介護職員・50名まで）とR804介護福祉士（算定対象かつ介護福祉士・30名まで）へ、1〜28日の最終勤務時間・4週合計・週平均を書き込みます。Excelでは出力する人数分の行だけ表示されます。</p>
@@ -229,11 +200,44 @@
   </details>
 </section>
 
+<details id="legacyExportDetails" class="panel" hidden>
+<summary style="cursor:pointer;font-weight:600">詳細設定（旧公式Excel出力）</summary>
+<p class="muted" style="margin:8px 0 0">厚生労働省の標準様式1へ出力する従来の機能です。通常は使いません。</p>
+
+<section class="panel" id="exportCheckSection" hidden>
+  <h2>出力前チェック</h2>
+  <div id="exportCheck"></div>
+</section>
+
+<section class="panel" id="exportSymbolSection" hidden>
+  <h2>シフト記号対応表（公式Excelへ書き込む予定）</h2>
+  <div id="exportSymbolInfo"></div>
+  <div class="table-wrap"><table id="exportSymbolTable"></table></div>
+</section>
+
+<section class="panel" id="exportFileSection" hidden>
+  <h2>公式Excelの作成</h2>
+  <p class="muted" style="margin:0 0 10px">厚生労働省の標準様式1（介護老人福祉施設・短期入所生活介護）のExcelを選んでください。選んだファイルは変更せず、必要なセルだけ書き込んだコピーを作成します。</p>
+  <label class="file-label">公式Excelを選択
+    <input type="file" id="templateInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+  </label>
+  <span id="templateName" class="file-name"></span>
+  <div style="margin-top:12px">
+    <label for="facilityNameInput" style="font-weight:600">事業所名：</label>
+    <input type="text" id="facilityNameInput" style="font-size:16px;padding:6px;min-height:40px;width:260px;max-width:100%" placeholder="（空欄のままでも出力できます）">
+  </div>
+  <div style="margin-top:12px">
+    <button type="button" id="exportButton" class="export-button" disabled>公式Excelを作成</button>
+    <span id="exportButtonNote" class="muted" style="margin-left:8px"></span>
+  </div>
+  <div id="exportMessages"></div>
+</section>
 <section class="panel" id="exportStaffSection" hidden>
   <h2>職員転記プレビュー</h2>
   <p class="muted" style="margin:0 0 10px">算定対象＝対象の職員だけを表示しています。Excelファイルの出力はまだ行いません。</p>
   <div class="table-wrap"><table id="exportStaffTable" class="export-table"></table></div>
 </section>
+</details>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -970,7 +974,7 @@ function buildExport(){
 function renderPage3(){
   const has = !!(linkData && selectedMonth);
   document.getElementById("noDataMsg3").hidden = has;
-  ["exportCheckSection", "exportSymbolSection", "exportFileSection", "kaigoSection", "exportStaffSection"].forEach(id => document.getElementById(id).hidden = !has);
+  ["exportCheckSection", "exportSymbolSection", "exportFileSection", "kaigoSection", "exportStaffSection", "legacyExportDetails"].forEach(id => document.getElementById(id).hidden = !has);
   if(!has) return;
   ensureStaffMaster();
   const r = buildExport();
