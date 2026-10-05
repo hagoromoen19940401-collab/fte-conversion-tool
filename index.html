@@ -40,6 +40,9 @@
   .export-table td, .export-table th { padding: 6px 6px; font-size: 0.9em; }
   .export-table td.day { text-align: center; }
   .export-table td.day.ng { background: #fee2e2; color: #991b1b; }
+  .cfg-btn { padding: 10px 16px; min-height: 44px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; font: inherit; font-weight: 600; cursor: pointer; margin: 0 6px 6px 0; }
+  .cfg-btn.active { background: #047857; border-color: #047857; color: #fff; }
+  .cfg-closed { display: none !important; }
   .kaigo-preview th:first-child, .kaigo-preview td:first-child { position: sticky; left: 0; background: #fff; z-index: 2; }
   .kaigo-preview th:first-child { background: #f3f4f6; z-index: 3; }
   .kaigo-preview td.day { min-width: 26px; padding: 6px 3px; }
@@ -121,27 +124,36 @@
   <p class="muted" style="margin:0">先に「1. 勤務表読込」で勤務表Excelを読み込んでください。</p>
 </section>
 
-<section class="panel" id="settingsSection" hidden>
+<section class="panel" id="cfgBar" hidden>
+  <span class="muted" style="margin-right:8px">設定（押すと開きます）：</span>
+  <button type="button" class="cfg-btn" data-cfg="codeSection">勤務コード設定</button>
+  <button type="button" class="cfg-btn" data-cfg="masterSection">職員マスター</button>
+  <button type="button" class="cfg-btn" data-cfg="nurseSection">看護勤務設定</button>
+  <button type="button" class="cfg-btn" data-cfg="settingsSection">基本設定</button>
+  <div id="cfgNote" class="muted" style="margin-top:6px"></div>
+</section>
+
+<section class="panel cfg-closed" id="settingsSection" hidden>
   <h2>基本設定</h2>
   <label for="fullTimeInput" style="font-weight:600">常勤者が週に勤務すべき時間数：</label>
   <input type="number" id="fullTimeInput" min="1" step="0.5" inputmode="decimal" style="font-size:16px;padding:6px;min-height:40px;width:90px"> 時間
   <span class="muted" id="fullTimeNote" style="margin-left:8px"></span>
 </section>
 
-<section class="panel" id="masterSection" hidden>
+<section class="panel cfg-closed" id="masterSection" hidden>
   <h2>職員マスター</h2>
   <p class="muted" style="margin:0 0 10px">勤務形態（A/B/C/D）は常勤区分と従事形態から自動で決まります。設定は職員IDごとにこの端末に保存され、勤務表を読み込み直しても維持されます。</p>
   <div class="table-wrap"><table id="masterTable" class="code-table"></table></div>
   <datalist id="nurseQualList"><option value="看護師"><option value="准看護師"></datalist>
 </section>
 
-<section class="panel" id="codeSection" hidden>
+<section class="panel cfg-closed" id="codeSection" hidden>
   <h2>勤務コード設定 <span class="muted" style="font-size:0.8em;font-weight:normal" id="codeMonthLabel"></span></h2>
   <p class="muted" style="margin:0 0 10px">開始・終了・休憩を入れると算定勤務時間を自動計算します（手で変更も可）。時間だけで管理する記号は開始・終了を空欄にして算定勤務時間だけ入れてください。休みは 0 を入れてください。設定はこの端末に保存されます。</p>
   <div class="table-wrap"><table id="codeTable" class="code-table"></table></div>
 </section>
 
-<section class="panel" id="nurseSection" hidden>
+<section class="panel cfg-closed" id="nurseSection" hidden>
   <h2>看護職員の通常勤務時間</h2>
   <p class="muted" style="margin:0 0 10px">看護職員は、元勤務記号が空欄・☆・会議・会議＋☆の日にこの通常勤務時間を計上します（☆はオンコール表示のみで時間は加算しません）。設定はこの端末に保存されます。</p>
   <div class="table-wrap"><table id="nurseTable" class="code-table"></table></div>
@@ -1520,6 +1532,7 @@ function renderNurseTable(){
 function renderPage2(){
   const has = !!(linkData && selectedMonth);
   document.getElementById("noDataMsg").hidden = has;
+  document.getElementById("cfgBar").hidden = !has;
   document.getElementById("codeSection").hidden = !has;
   document.getElementById("masterSection").hidden = !has;
   document.getElementById("settingsSection").hidden = !has;
@@ -1635,6 +1648,21 @@ document.getElementById("staffTable").addEventListener("click", e => {
   renderDailyStaffSelect();
   renderDaily();
   document.getElementById("detailSection").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+// 2. 確認・修正：設定項目（勤務コード・職員マスター・看護勤務・基本設定）は、押した1つだけ開く
+document.getElementById("cfgBar").addEventListener("click", e => {
+  const btn = e.target.closest("button.cfg-btn");
+  if(!btn) return;
+  const id = btn.dataset.cfg;
+  const open = !document.getElementById(id).classList.contains("cfg-closed");
+  document.querySelectorAll("button.cfg-btn").forEach(b => {
+    const on = b === btn && !open;
+    b.classList.toggle("active", on);
+    document.getElementById(b.dataset.cfg).classList.toggle("cfg-closed", !on);
+  });
+  document.getElementById("cfgNote").textContent =
+    !open && document.getElementById(id).hidden ? "この設定は、該当する職員がいないため表示するものがありません。" : "";
 });
 
 // 画面切替（1. 勤務表読込 / 2. 確認・修正）
