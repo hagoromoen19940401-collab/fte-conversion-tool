@@ -85,7 +85,7 @@
 <div class="steps">
   <button type="button" class="step active" data-page="page1">1. 勤務表読込</button>
   <button type="button" class="step" data-page="page2">2. 確認・修正</button>
-  <button type="button" class="step" data-page="page3">3. Excel出力</button>
+  <button type="button" class="step" data-page="page3">3. Excel書き出し</button>
 </div>
 
 <div id="page1">
@@ -196,7 +196,7 @@
     <span class="muted" style="margin-left:8px">Excelのタイトル・曜日・ファイル名だけに使います（勤務データは対象月のままです）</span>
   </div>
   <div style="margin-top:12px">
-    <button type="button" id="kaigoButton" class="export-button" disabled>Excel出力</button>
+    <button type="button" id="kaigoButton" class="export-button" disabled>Excelを書き出す</button>
     <span id="kaigoButtonNote" class="muted" style="margin-left:8px"></span>
   </div>
   <div id="kaigoMessages"></div>
@@ -214,7 +214,7 @@
 </section>
 
 <details id="legacyExportDetails" class="panel" hidden>
-<summary style="cursor:pointer;font-weight:600">詳細設定（旧公式Excel出力）</summary>
+<summary style="cursor:pointer;font-weight:600">詳細設定（旧公式Excel書き出し）</summary>
 <p class="muted" style="margin:8px 0 0">厚生労働省の標準様式1へ出力する従来の機能です。通常は使いません。</p>
 
 <section class="panel" id="exportCheckSection" hidden>
@@ -1408,7 +1408,7 @@ function renderKaigoHistory(){
   const months = Object.keys(kaigoHistory).sort();
   box.innerHTML = `<div style="font-weight:600">保存済み月</div>` + (months.length
     ? months.map(ym => `<div>${reiwaLabel(ym)}　<button type="button" class="kaigo-del" data-ym="${ym}">削除</button></div>`).join("")
-    : `<div>なし（Excel出力を押すと、その月が保存されます）</div>`);
+    : `<div>なし（Excelを書き出すと、その月が保存されます）</div>`);
 }
 
 // テンプレートから、保存済み月ごとの常勤換算シート（R0810特養全体・R0810介護福祉士 …）を古い月から順に作る。
@@ -1551,7 +1551,7 @@ function renderKaigoPreview(){
     <div><dt>週平均時間合計</dt><dd>${pendingCount ? `${formatHours(weeklySum)}時間（暫定）` : `${formatHours(weeklySum)}時間`}</dd></div>
     <div><dt>常勤換算人数（÷${KAIGO_FULL_TIME}）</dt><dd>${fmt(total)}</dd></div>
   </dl>`;
-  if(rows.length > cfg.max) html += `<div class="error">テンプレートの出力可能人数を超えています（${rows.length}名／上限${cfg.max}名）。Excel出力はできません。</div>`;
+  if(rows.length > cfg.max) html += `<div class="error">テンプレートの出力可能人数を超えています（${rows.length}名／上限${cfg.max}名）。Excelを書き出せません。</div>`;
   html += `<div class="table-wrap" style="margin-top:12px"><table class="export-table kaigo-preview"><tr><th>氏名</th><th>区分</th>` +
     Array.from({length:FTE_DAYS}, (_, i) => `<th>${i + 1}</th>`).join("") + `<th>4週合計</th><th>週平均</th><th>状態</th></tr>`;
   vals.forEach((v, i) => {
@@ -1954,7 +1954,7 @@ document.getElementById("kaigoHistory").addEventListener("click", e => {
   const btn = e.target.closest("button.kaigo-del");
   if(!btn) return;
   const ym = btn.dataset.ym;
-  if(!confirm(`${reiwaLabel(ym)}の保存を削除しますか？\n（以後のExcel出力に、この月のシートは含まれなくなります）`)) return;
+  if(!confirm(`${reiwaLabel(ym)}の保存を削除しますか？\n（以後のExcel書き出しに、この月のシートは含まれなくなります）`)) return;
   delete kaigoHistory[ym];
   saveKaigoHistory();
   renderKaigoHistory();
